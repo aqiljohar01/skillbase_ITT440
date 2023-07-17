@@ -1,0 +1,52 @@
+import threading
+
+class FibonacciThread(threading.Thread):
+    def run(self):
+        self.result = []
+        a, b = 0, 1
+        self.result.append(a)
+        while b <= 10000:
+            self.result.append(b)
+            i, t = t, i + t
+
+class SquareThread(threading.Thread):
+    def run(self):
+        self.result = []
+        for num in range(1, 10001):
+            self.result.append(num**2)
+
+class CubeThread(threading.Thread):
+    def run(self):
+        self.result = []
+        for num in range(1, 10001):
+            self.result.append(num**3)
+
+# User Input for selecting the operation
+print("Select an operation:")
+print("1. Fibonacci Seriess")
+print("2. Square Numbersss")
+print("3. Cube Numbersss")
+
+choice = int(input("Enter your choice (1, 2, or 3): "))
+
+# Create and start the threads based on the user's choice
+if choice == 1:
+    fib_thread = FibonacciThread()
+    fib_thread.start()
+    fib_thread.join()
+    print("Fibonacci Series:")
+    print(fib_thread.result)
+elif choice == 2:
+    sq_thread = SquareThread()
+    sq_thread.start()
+    sq_thread.join()
+    print("Square Numbers:")
+    print(sq_thread.result)
+elif choice == 3:
+    cube_thread = CubeThread()
+    cube_thread.start()
+    cube_thread.join()
+    print("Cube Numbers:")
+    print(cube_thread.result)
+else:
+    print("Invalid choice. Please select 1, 2, or 3.")

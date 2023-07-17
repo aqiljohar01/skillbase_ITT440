@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <time.h>
+#include <unistd.h>
+
+#define PORT 8080
+#define Min_range 50000
+#define Max_range 80000
+
+int main() {
+    int server_socket, client_socket;
+    struct sockaddr_in server_address, client_address;
+    socklen_t address_size;
+    char buffer[1024];
+    int random_number;
+
+    // Create the server socket
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket == -1) {
+        perror("Error creating socket.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Set server address parameters
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(PORT);
+    server_address.sin_addr.s_addr = INADDR_ANY;
+
+    // Bind the server socket to the specified IP and port
+    if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
+        perror("Error binding socket.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Listen for incoming connections
+    if (listen(server_socket, 5) == -1) {
+        perror("Error listening.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Server listening on port %d\n", PORT);
+
+    // Accept an incoming connection
+    address_size = sizeof(client_address);
+    client_socket = accept(server_socket, (struct sockaddr *)&client_address, &address_size);
+    if (client_socket == -1) {
+        perror("Error accepting connection.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Generate a random number
+    srand(time(NULL));
+    random_number = (rand() % (Max_range - Min_range + 1)) + Min_range;
+
+    // Convert the random number to a string
+    sprintf(buffer, "%d", random_number);
+
+    // Send the random number to the client
+    ssize_t bytes_sent = send(client_socket, buffer, strlen(buffer), 0);
+    if (bytes_sent == -1) {
+        perror("Error sending data.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Random number sent to the client: %d\n", random_number);
+
+    // Close the client and server sockets
+    close(client_socket);
+    close(server_socket);
+
+    return 0;
+}
